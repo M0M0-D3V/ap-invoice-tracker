@@ -22,3 +22,6 @@ class InvoiceCreate(BaseModel):
 class Invoice(InvoiceCreate):
     id: int
     status: InvoiceStatus = InvoiceStatus.PENDING
+
+class StatusUpdate(BaseModel):
+    status: InvoiceStatus
