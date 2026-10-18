@@ -7,6 +7,13 @@ app = FastAPI(title="AP Invoice Tracker")
 invoices: list[Invoice] = []
 next_id = 1
 
+ALLOWED_TRANSITIONS = {
+    "pending": ["approved", "rejected"],
+    "approved": ["paid"],
+    "rejected": [],
+    "paid": [],
+}
+
 def find_invoice(invoice_id: int) -> Invoice:
     for invoice in invoices:
         if invoice.id == invoice_id:
@@ -35,6 +42,11 @@ def get_invoice(invoice_id: int):
 @app.patch("/invoices/{invoice_id}/status", response_model=Invoice)
 def update_invoice_status(invoice_id: int, update: StatusUpdate):
     invoice = find_invoice(invoice_id)
+    if update.status not in ALLOWED_TRANSITIONS[invoice.status]:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid status transition from {invoice.status} to {update.status}",
+        )
     invoice.status = update.status
     return invoice
 
