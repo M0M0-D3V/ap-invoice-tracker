@@ -15,6 +15,9 @@ def find_invoice(invoice_id: int) -> Invoice:
 
 @app.post("/invoices", response_model=Invoice, status_code=201)
 def create_invoice(invoice: InvoiceCreate):
+    for inv in invoices:
+        if inv.invoice_number == invoice.invoice_number:
+            raise HTTPException(status_code=409, detail="Invoice number already exists")
     global next_id
     db_invoice = Invoice(id=next_id, **invoice.model_dump())
     invoices.append(db_invoice)
