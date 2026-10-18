@@ -1,7 +1,7 @@
 from datetime import date
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class InvoiceStatus(str, Enum):
@@ -13,7 +13,7 @@ class InvoiceStatus(str, Enum):
 class InvoiceCreate(BaseModel):
     vendor: str
     invoice_number: str
-    amount: float
+    amount: float = Field(gt=0)
     due_date: date
     po_number: str | None = None
 
