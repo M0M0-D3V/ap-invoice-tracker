@@ -7,13 +7,11 @@ from pydantic import BaseModel
 class InvoiceStatus(str, Enum):
     PENDING = "pending"
     PAID = "paid"
-    OVERDUE = "overdue"
     APPROVED = "approved"
     REJECTED = "rejected"
 
 class InvoiceCreate(BaseModel):
     vendor: str
-    customer_name: str
     invoice_number: str
     amount: float
     due_date: date
