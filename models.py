@@ -3,6 +3,18 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
+class VendorStatus(str, Enum):
+    ACTIVE = "active"
+    HOLD = "hold"
+
+class VendorCreate(BaseModel):
+    name: str
+    address: str
+    email: str | None = None
+    phone: str | None = None
+class Vendor(VendorCreate):
+    id: int
+    status: VendorStatus = VendorStatus.ACTIVE
 
 class InvoiceStatus(str, Enum):
     PENDING = "pending"
@@ -11,7 +23,7 @@ class InvoiceStatus(str, Enum):
     REJECTED = "rejected"
 
 class InvoiceCreate(BaseModel):
-    vendor: str
+    vendor_id: int
     invoice_number: str
     amount: float = Field(gt=0)
     due_date: date
