@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 
-from models import Invoice, InvoiceCreate, InvoiceStatus, StatusUpdate
+from models import Invoice, InvoiceCreate, InvoiceStatus, StatusUpdate, Vendor, VendorCreate, VendorStatus
 
 app = FastAPI(title="AP Invoice Tracker")
 
@@ -14,6 +14,39 @@ ALLOWED_TRANSITIONS = {
     "paid": [],
 }
 
+vendors: list[Vendor] = []
+next_vendor_id = 1
+
+def find_vendor(vendor_id: int) -> Vendor:
+    for vendor in vendors:
+        if vendor.id == vendor_id:
+            return vendor
+    raise HTTPException(status_code=404, detail="Vendor not found")
+
+@app.post("/vendors", response_model=Vendor, status_code=201)
+def create_vendor(vendor: VendorCreate):
+    global next_vendor_id
+    db_vendor = Vendor(id=next_vendor_id, **vendor.model_dump())
+    vendors.append(db_vendor)
+    next_vendor_id += 1
+    return db_vendor
+
+@app.get("/vendors", response_model=list[Vendor])
+def get_vendors():
+    return vendors
+
+@app.get("/vendors/{vendor_id}", response_model=Vendor)
+def get_vendor(vendor_id: int):
+    return find_vendor(vendor_id)
+
+@app.patch("/vendors/{vendor_id}/status", response_model=Vendor)
+def update_vendor_status(vendor_id: int, status: str):
+    vendor = find_vendor(vendor_id)
+    if status not in VendorStatus.__members__:
+        raise HTTPException(status_code=400, detail="Invalid status")
+    vendor.status = VendorStatus[status]
+    return vendor
+
 def find_invoice(invoice_id: int) -> Invoice:
     for invoice in invoices:
         if invoice.id == invoice_id:
@@ -22,10 +55,13 @@ def find_invoice(invoice_id: int) -> Invoice:
 
 @app.post("/invoices", response_model=Invoice, status_code=201)
 def create_invoice(invoice: InvoiceCreate):
+    global next_id
+    vendor = find_vendor(invoice.vendor_id)
+    if vendor.status != VendorStatus.ACTIVE:
+        raise HTTPException(status_code=400, detail="Vendor is not active")
     for inv in invoices:
         if inv.invoice_number == invoice.invoice_number:
             raise HTTPException(status_code=409, detail="Invoice number already exists")
-    global next_id
     db_invoice = Invoice(id=next_id, **invoice.model_dump())
     invoices.append(db_invoice)
     next_id += 1
