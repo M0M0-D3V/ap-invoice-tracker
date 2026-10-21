@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException
 
-from models import Invoice, InvoiceCreate, InvoiceStatus, StatusUpdate, Vendor, VendorCreate, VendorStatus
+from db import get_connection
+from models import (Invoice, InvoiceCreate, InvoiceStatus, StatusUpdate,
+                    Vendor, VendorCreate, VendorStatus)
 
 app = FastAPI(title="AP Invoice Tracker")
 
@@ -91,6 +93,33 @@ def delete_invoice(invoice_id: int):
     invoice = find_invoice(invoice_id)
     invoices.remove(invoice)
     return invoice
+
+MATCH_SQL = """
+SELECT i.invoice_id, v.vendor_name, i.amount AS inv_amt,
+        p.amount AS po_amt, r.receipt_id
+FROM invoices i
+JOIN purchase_orders p ON i.po_id = p.po_id
+JOIN vendors v ON i.vendor_id = v.vendor_id
+LEFT JOIN receipts r ON p.po_id = r.po_id
+"""
+
+@app.get("/match")
+def get_matches():
+    conn = get_connection()
+    cur = conn.cursor(dictionary=True)
+    cur.execute(MATCH_SQL)
+    rows = cur.fetchall()
+    conn.close()
+    return rows
+
+@app.get("/match/mismatches")
+def get_mismatches():
+    conn = get_connection()
+    cur = conn.cursor(dictionary=True)
+    cur.execute(MATCH_SQL + " WHERE i.amount <> p.amount OR r.receipt_id IS NULL")
+    rows = cur.fetchall()
+    conn.close()
+    return rows
 
 @app.get("/health")
 def health():
