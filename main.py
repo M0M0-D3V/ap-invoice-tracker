@@ -121,6 +121,20 @@ def get_mismatches():
     conn.close()
     return rows
 
+@app.get("/db/invoices")
+def get_db_invoices(vendor_id: int | None = None):
+    sql = """SELECT i.invoice_id, v.vendor_name, i.invoice_date, i.amount FROM invoices i JOIN vendors v ON i.vendor_id = v.vendor_id"""
+    params = ()
+    if vendor_id is not None:
+        sql += " WHERE i.vendor_id = %s"
+        params = (vendor_id,)
+    conn = get_connection()
+    cur = conn.cursor(dictionary=True)
+    cur.execute(sql, params)
+    rows = cur.fetchall()
+    conn.close()
+    return rows
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
