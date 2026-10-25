@@ -122,12 +122,17 @@ def get_mismatches():
     return rows
 
 @app.get("/db/invoices")
-def get_db_invoices(vendor_id: int | None = None):
+def get_db_invoices(vendor_id: int | None = None, min_amount: float | None = None):
     sql = """SELECT i.invoice_id, v.vendor_name, i.invoice_date, i.amount FROM invoices i JOIN vendors v ON i.vendor_id = v.vendor_id"""
-    params = ()
+    where, params = [], []
     if vendor_id is not None:
-        sql += " WHERE i.vendor_id = %s"
-        params = (vendor_id,)
+        where.append("i.vendor_id = %s")
+        params.append(vendor_id)
+    if min_amount is not None:
+        where.append("i.amount >= %s")
+        params.append(min_amount)
+    if where:
+        sql += " WHERE " + " AND ".join(where)
     conn = get_connection()
     cur = conn.cursor(dictionary=True)
     cur.execute(sql, params)
