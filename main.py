@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from mysql.connector import IntegrityError
 
 from db import get_connection
 from models import (Invoice, InvoiceCreate, InvoiceStatus, StatusUpdate,
@@ -139,6 +140,22 @@ def get_db_invoices(vendor_id: int | None = None, min_amount: float | None = Non
     rows = cur.fetchall()
     conn.close()
     return rows
+
+@app.post("/db/invoices", status_code=201)
+def create_db_invoice(invoice: InvoiceCreate):
+    sql = """INSERT INTO invoices (vendor_id, invoice_number, invoice_date, due_date, amount) VALUES (%s, %s, CURDATE(), %s,%s)"""
+    params = (invoice.vendor_id, invoice.invoice_number,invoice.due_date, invoice.amount)
+    conn = get_connection()
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute(sql, params)
+        conn.commit()
+    except IntegrityError as e:
+        conn.close()
+        raise HTTPException(status_code=409, detail="Invoice number already exists")
+    new_id = cur.lastrowid
+    conn.close()
+    return {"invoice_id": new_id, "status": "pending", **invoice.model_dump()}
 
 @app.get("/health")
 def health():
