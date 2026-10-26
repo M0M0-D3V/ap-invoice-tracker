@@ -157,6 +157,17 @@ def create_db_invoice(invoice: InvoiceCreate):
     conn.close()
     return {"invoice_id": new_id, "status": "pending", **invoice.model_dump()}
 
+@app.get("/db/invoices/{invoice_id}")
+def get_db_invoice(invoice_id: int):
+    conn = get_connection()
+    cur = conn.cursor(dictionary=True)
+    cur.execute("SELECT * FROM invoices WHERE invoice_id = %s", (invoice_id,))
+    row = cur.fetchone()
+    conn.close()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    return row
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
