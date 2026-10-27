@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from mysql.connector import IntegrityError
 
-from db import get_connection
+from db import get_connection, get_cursor
 from models import (Invoice, InvoiceCreate, InvoiceStatus, StatusUpdate,
                     Vendor, VendorCreate, VendorStatus)
 
@@ -106,21 +106,15 @@ LEFT JOIN receipts r ON p.po_id = r.po_id
 
 @app.get("/match")
 def get_matches():
-    conn = get_connection()
-    cur = conn.cursor(dictionary=True)
-    cur.execute(MATCH_SQL)
-    rows = cur.fetchall()
-    conn.close()
-    return rows
+    with get_cursor() as cur:
+        cur.execute(MATCH_SQL)
+        return cur.fetchall()
 
 @app.get("/match/mismatches")
 def get_mismatches():
-    conn = get_connection()
-    cur = conn.cursor(dictionary=True)
-    cur.execute(MATCH_SQL + " WHERE i.amount <> p.amount OR r.receipt_id IS NULL")
-    rows = cur.fetchall()
-    conn.close()
-    return rows
+    with get_cursor() as cur:
+        cur.execute(MATCH_SQL + " WHERE i.amount <> p.amount OR r.receipt_id IS NULL")
+        return cur.fetchall()
 
 @app.get("/db/invoices")
 def get_db_invoices(vendor_id: int | None = None, min_amount: float | None = None):
