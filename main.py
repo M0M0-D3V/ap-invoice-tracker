@@ -43,11 +43,9 @@ def get_vendor(vendor_id: int):
     return find_vendor(vendor_id)
 
 @app.patch("/vendors/{vendor_id}/status", response_model=Vendor)
-def update_vendor_status(vendor_id: int, status: str):
+def update_vendor_status(vendor_id: int, status: VendorStatus):
     vendor = find_vendor(vendor_id)
-    if status not in VendorStatus.__members__:
-        raise HTTPException(status_code=400, detail="Invalid status")
-    vendor.status = VendorStatus[status]
+    vendor.status = status
     return vendor
 
 def find_invoice(invoice_id: int) -> Invoice:
