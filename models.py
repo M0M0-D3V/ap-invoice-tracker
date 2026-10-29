@@ -1,6 +1,6 @@
 from datetime import date
 from enum import Enum
-
+from decimal import Decimal
 from pydantic import BaseModel, Field
 
 class VendorStatus(str, Enum):
@@ -35,3 +35,10 @@ class Invoice(InvoiceCreate):
 
 class StatusUpdate(BaseModel):
     status: InvoiceStatus
+
+class MatchRow(BaseModel):
+    invoice_id: int
+    vendor_name: str
+    inv_amt: Decimal
+    po_amt: Decimal | None = None
+    receipt_id: int | None = None

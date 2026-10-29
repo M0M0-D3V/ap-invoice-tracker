@@ -2,8 +2,8 @@ from fastapi import FastAPI, HTTPException
 from mysql.connector import IntegrityError
 
 from db import get_connection, get_cursor
-from models import (Invoice, InvoiceCreate, InvoiceStatus, StatusUpdate,
-                    Vendor, VendorCreate, VendorStatus)
+from models import (Invoice, InvoiceCreate, InvoiceStatus, MatchRow,
+                    StatusUpdate, Vendor, VendorCreate, VendorStatus)
 
 app = FastAPI(title="AP Invoice Tracker")
 
@@ -102,13 +102,13 @@ JOIN vendors v ON i.vendor_id = v.vendor_id
 LEFT JOIN receipts r ON p.po_id = r.po_id
 """
 
-@app.get("/match")
+@app.get("/match", response_model=list[MatchRow])
 def get_matches():
     with get_cursor() as cur:
         cur.execute(MATCH_SQL)
         return cur.fetchall()
 
-@app.get("/match/mismatches")
+@app.get("/match/mismatches", response_model=list[MatchRow])
 def get_mismatches():
     with get_cursor() as cur:
         cur.execute(MATCH_SQL + " WHERE i.amount <> p.amount OR r.receipt_id IS NULL")
