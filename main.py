@@ -12,8 +12,8 @@ next_id = 1
 
 ALLOWED_TRANSITIONS = {
     "pending": ["approved", "rejected"],
-    "approved": ["paid"],
-    "rejected": [],
+    "approved": ["paid", "rejected", "pending"],
+    "rejected": ["pending"],
     "paid": [],
 }
 
@@ -153,12 +153,25 @@ def create_db_invoice(invoice: InvoiceCreate):
 def get_db_invoice(invoice_id: int):
     conn = get_connection()
     cur = conn.cursor(dictionary=True)
-    cur.execute("SELECT * FROM invoices WHERE invoice_id = %s", (invoice_id,))
+    cur.execute("SELECT *, invoice_id AS id FROM invoices WHERE invoice_id = %s", (invoice_id,))
     row = cur.fetchone()
     conn.close()
     if row is None:
         raise HTTPException(status_code=404, detail="Invoice not found")
     return row
+
+@app.patch("/db/invoices/{invoice_id}/status", response_model=Invoice)
+def update_db_invoice_status(invoice_id: int, update: StatusUpdate):
+    invoice = get_db_invoice(invoice_id)
+    if update.status not in ALLOWED_TRANSITIONS[invoice["status"]]:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid status transition from {invoice['status']} to {update.status}",
+        )
+    invoice["status"] = update.status
+    with get_cursor(commit=True) as cur:
+        cur.execute("UPDATE invoices SET status = %s WHERE invoice_id = %s", (update.status, invoice_id),)
+    return invoice
 
 @app.get("/health")
 def health():

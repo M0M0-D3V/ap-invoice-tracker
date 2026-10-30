@@ -1,7 +1,9 @@
 from datetime import date
-from enum import Enum
 from decimal import Decimal
+from enum import Enum
+
 from pydantic import BaseModel, Field
+
 
 class VendorStatus(str, Enum):
     ACTIVE = "active"
@@ -24,9 +26,9 @@ class InvoiceStatus(str, Enum):
 
 class InvoiceCreate(BaseModel):
     vendor_id: int
-    invoice_number: str
+    invoice_number: str | None = None
     amount: float = Field(gt=0)
-    due_date: date
+    due_date: date | None = None
     po_number: str | None = None
 
 class Invoice(InvoiceCreate):
