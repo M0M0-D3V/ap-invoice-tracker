@@ -11,7 +11,7 @@ class VendorStatus(str, Enum):
 
 class VendorCreate(BaseModel):
     name: str
-    address: str
+    address: str | None = None
     email: str | None = None
     phone: str | None = None
 class Vendor(VendorCreate):

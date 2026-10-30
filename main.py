@@ -173,6 +173,26 @@ def update_db_invoice_status(invoice_id: int, update: StatusUpdate):
         cur.execute("UPDATE invoices SET status = %s WHERE invoice_id = %s", (update.status, invoice_id),)
     return invoice
 
+@app.get("/db/vendors/{vendor_id}", response_model=Vendor)
+def get_db_vendor(vendor_id: int):
+    conn = get_connection()
+    cur = conn.cursor(dictionary=True)
+    cur.execute("SELECT vendor_id AS id, vendor_name AS name FROM vendors WHERE vendor_id = %s", (vendor_id,))
+    row = cur.fetchone()
+    conn.close()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+    return row
+
+@app.get("/db/vendors", response_model=list[Vendor])
+def get_db_vendors():
+    conn = get_connection()
+    cur = conn.cursor(dictionary=True)
+    cur.execute("SELECT vendor_id AS id, vendor_name AS name FROM vendors")
+    rows = cur.fetchall()
+    conn.close()
+    return rows
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
