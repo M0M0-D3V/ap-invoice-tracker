@@ -4,6 +4,9 @@ from mysql.connector import IntegrityError
 from db import get_connection, get_cursor
 from models import (Invoice, InvoiceCreate, InvoiceStatus, MatchRow,
                     StatusUpdate, Vendor, VendorCreate, VendorStatus)
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="AP Invoice Tracker")
 
@@ -206,6 +209,7 @@ def create_db_vendor(vendors: VendorCreate):
         conn.close()
         raise HTTPException(status_code=409, detail="Vendor number already exists")
     new_id = cur.lastrowid
+    logger.info("Created vendor %s: %s", new_id, vendors.vendor_name)
     conn.close()
     return {"vendor_id": new_id, "vendor_name": vendors.vendor_name}
 
