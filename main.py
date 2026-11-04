@@ -207,7 +207,7 @@ def create_db_vendor(vendors: VendorCreate):
         conn.commit()
     except IntegrityError as e:
         conn.close()
-        raise HTTPException(status_code=409, detail="Vendor number already exists")
+        raise HTTPException(status_code=409, detail="Vendor name already exists")
     new_id = cur.lastrowid
     logger.info("Created vendor %s: %s", new_id, vendors.vendor_name)
     conn.close()
