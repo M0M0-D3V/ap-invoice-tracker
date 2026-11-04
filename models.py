@@ -10,7 +10,7 @@ class VendorStatus(str, Enum):
     HOLD = "hold"
 
 class VendorCreate(BaseModel):
-    name: str
+    vendor_name: str
     address: str | None = None
     email: str | None = None
     phone: str | None = None

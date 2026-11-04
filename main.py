@@ -193,6 +193,22 @@ def get_db_vendors():
     conn.close()
     return rows
 
+@app.post("/db/vendors", status_code=201)
+def create_db_vendor(vendors: VendorCreate):
+    sql = """INSERT INTO vendors (vendor_name) VALUES (%s)"""
+    params = (vendors.vendor_name,)
+    conn = get_connection()
+    cur = conn.cursor(dictionary=True)
+    try:
+        cur.execute(sql, params)
+        conn.commit()
+    except IntegrityError as e:
+        conn.close()
+        raise HTTPException(status_code=409, detail="Vendor number already exists")
+    new_id = cur.lastrowid
+    conn.close()
+    return {"vendor_id": new_id, "vendor_name": vendors.vendor_name}
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
