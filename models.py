@@ -2,7 +2,7 @@ from datetime import date
 from decimal import Decimal, ROUND_HALF_UP
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class VendorStatus(str, Enum):
@@ -27,9 +27,14 @@ class InvoiceStatus(str, Enum):
 class InvoiceCreate(BaseModel):
     vendor_id: int
     invoice_number: str | None = None
-    amount: Decimal
+    amount: Decimal = Field(gt=0, max_digits=10, decimal_places=2)
     due_date: date | None = None
     po_number: str | None = None
+    
+    @field_validator("amount", mode="before")
+    @classmethod
+    def round_amount(cls, v) -> Decimal:
+        return Decimal(str(v)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 class Invoice(InvoiceCreate):
     id: int
