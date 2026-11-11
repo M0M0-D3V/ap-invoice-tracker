@@ -1,5 +1,5 @@
 from datetime import date
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from enum import Enum
 
 from pydantic import BaseModel, Field
@@ -27,7 +27,7 @@ class InvoiceStatus(str, Enum):
 class InvoiceCreate(BaseModel):
     vendor_id: int
     invoice_number: str | None = None
-    amount: float = Field(gt=0)
+    amount: Decimal
     due_date: date | None = None
     po_number: str | None = None
 
