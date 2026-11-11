@@ -1,10 +1,12 @@
+import logging
+
 from fastapi import FastAPI, HTTPException
 from mysql.connector import IntegrityError
 
 from db import get_connection, get_cursor
 from models import (Invoice, InvoiceCreate, InvoiceStatus, MatchRow,
                     StatusUpdate, Vendor, VendorCreate, VendorStatus)
-import logging
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -211,7 +213,7 @@ def create_db_vendor(vendors: VendorCreate):
     new_id = cur.lastrowid
     logger.info("Created vendor %s: %s", new_id, vendors.vendor_name)
     conn.close()
-    return {"vendor_id": new_id, "vendor_name": vendors.vendor_name}
+    return {"id": new_id, "vendor_name": vendors.vendor_name}
 
 @app.get("/health")
 def health():
