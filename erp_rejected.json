@@ -1,0 +1,75 @@
+[
+  {
+    "invoice_id": 1,
+    "errors": [
+      "missing invoice_number"
+    ]
+  },
+  {
+    "invoice_id": 2,
+    "errors": [
+      "missing invoice_number"
+    ]
+  },
+  {
+    "invoice_id": 3,
+    "errors": [
+      "missing invoice_number"
+    ]
+  },
+  {
+    "invoice_id": 4,
+    "errors": [
+      "missing invoice_number"
+    ]
+  },
+  {
+    "invoice_id": 5,
+    "errors": [
+      "missing invoice_number"
+    ]
+  },
+  {
+    "invoice_id": 6,
+    "errors": [
+      "missing invoice_number"
+    ]
+  },
+  {
+    "invoice_id": 9,
+    "errors": [
+      "missing invoice_number",
+      "missing invoice_date"
+    ]
+  },
+  {
+    "invoice_id": 10,
+    "errors": [
+      "due_date before invoice_date"
+    ]
+  },
+  {
+    "invoice_id": 11,
+    "errors": [
+      "due_date before invoice_date"
+    ]
+  },
+  {
+    "invoice_id": 12,
+    "errors": [
+      "due_date before invoice_date"
+    ]
+  },
+  {
+    "invoice_id": 13,
+    "errors": [
+      "due_date before invoice_date"
+    ]
+  },
+  {
+    "invoice_id": 14,
+    "errors": [
+      "due_date before invoice_date"
+    ]
+  }
+]

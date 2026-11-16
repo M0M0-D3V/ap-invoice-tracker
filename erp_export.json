@@ -1,0 +1,11 @@
+[
+  {
+    "externalId": "AP-7",
+    "tranId": "123436",
+    "entity": "Coastal Paper",
+    "tranDate": "2026-10-25",
+    "dueDate": "2026-12-26",
+    "total": 1000.0,
+    "approvalStatus": "PENDING"
+  }
+]
