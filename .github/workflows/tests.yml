@@ -39,7 +39,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Create tables
-        run: mysql -h 127.0.0.1 -u root -pci_root_pw ap_invoice_tracker < schema.sql
+        run: mysql -h 127.0.0.1 -u root -pci_root_pw ap_invoice_tracker < sql/schema.sql
 
       - name: Run tests
         run: pytest
