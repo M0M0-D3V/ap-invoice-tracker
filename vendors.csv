@@ -1,0 +1,7 @@
+vendor_name,email,phone,status
+Acme Supplies,ap@acme.test,555-0101,active
+Blue River Paper,billing@blueriver.test,555-0102,active
+Cactus Tech,ar@cactus.test,555-0103,hold
+Delta Freight,pay@delta.test,555-0104,active
+Acme Supplies,dupe@acme.test,555-0199,active
+,nobody@blank.test,555-0000,active
